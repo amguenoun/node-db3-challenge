@@ -1,6 +1,11 @@
 
 const db = require('../data/dbConfig');
 
+
+function idFind(id) {
+    return db('schemes').where('id', id);
+}
+
 exports.find = (req, res) => {
     db('schemes')
         .then(schemes => {
@@ -45,4 +50,58 @@ exports.findSteps = (req, res) => {
         .catch(err => {
             res.status(500).json({ message: 'Failed to get steps' });
         });
+}
+
+exports.add = (req, res) => {
+    const schemeData = req.body;
+
+    db('schemes').insert(schemeData)
+        .then(scheme => {
+            res.status(201).json(scheme);
+        })
+        .catch(err => {
+            res.status(500).json({ message: 'Failed to create new scheme' });
+        });
+}
+
+exports.addStep = (req, res) => {
+    const stepData = req.body;
+
+    db('steps').insert(stepData)
+        .then(step => {
+            res.status(201).json(step);
+        })
+        .catch(err => {
+            res.status(500).json({ message: 'Failed to create new step' });
+        });
+}
+
+exports.update = (req, res) => {
+    const id = req.params.id;
+    const updates = req.body;
+
+    db('schemes').where('id', id)
+        .update(updates)
+        .then(updatedScheme => {
+            idFind(id)
+                .then((scheme) => {
+                    res.status(201).json(scheme);
+                })
+        })
+        .catch(err => {
+            res.status(500).json({ message: 'Failed to update scheme' });
+        })
+}
+
+
+exports.remove = (req, res) => {
+    const id = req.params.id;
+
+    db('schemes').where('id', id).del()
+        .then(step => {
+            res.status(200).json({ message: 'works' });
+        })
+        .catch(err => {
+            res.status(500).json({ message: 'failed' });
+        })
 }
